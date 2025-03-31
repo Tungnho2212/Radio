@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio AND Chill 😘</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body { 
+            text-align: center; 
+            font-family: Arial, sans-serif; 
+            background: url('https://images6.alphacoders.com/122/thumbbig-1229258.webp') no-repeat center center fixed; 
+            background-size: cover; /* Hoặc thử cover nếu muốn phủ hết */
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h2 {
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        #clock {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        #audioPlayer {
+            width: 80%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 800px;
+        }
+        button { 
+            padding: 12px 20px; 
+            font-size: 16px; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.8);
+            transition: 0.3s;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+        .active {
+            background: #ffcc00 !important;
+            color: black;
+            font-weight: bold;
+        }
+        .music-menu-container {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+        }
+        .music-menu-button {
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            display: block;
+            transition: 0.3s;
+            margin-right: 20px;
+        }
+        .music-menu-button:hover {
+            margin-right: 20px;
+            background: linear-gradient(45deg, #ff5e62, #ff9966);
+        }
+        .music-menu {
+            display: none;
+            width: 275px;
+            max-height: 250px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 5px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .music-menu li {
+            list-style: none;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: 0.3s;
+            margin-right: 20px;
+        }
+        .music-menu li:hover {
+            background: linear-gradient(45deg, #2193b0, #6dd5ed);
+            color: black;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        #searchBox {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+        .firefly {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: rgba(0, 255, 0, 0.8);
+            box-shadow: 0 0 10px 4px rgba(0, 255, 0, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: moveRandom 10s infinite linear;
+        }
+
+        @keyframes moveRandom {
+            0% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(50px, -80px);
+            }
+            50% {
+                transform: translate(-60px, 90px);
+            }
+            75% {
+                transform: translate(80px, -50px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="clock"></div>
+    <h2>RADIO AND CHILL 🤓☝️</h2>
+    <audio id="audioPlayer" controls></audio>
+    <div class="button-container" id="buttons"></div>
+    <div class="music-menu-container">
+        <div class="music-menu-button" onclick="toggleMusicMenu()">MUSIC </div>
+        <div class="music-menu" id="musicMenu">
+            <input type="text" id="searchBox" placeholder="Tìm bài hát..." onkeyup="filterMusic()">
+            <ul id="musicList"></ul>
+        </div>
+    </div>
+    <script>
+        const channels = [
+            { name: 'VOV1', url: 'https://stream-cdn.vov.vn/live/vov1-audio_only.m3u8' },
+            { name: 'VOV2', url: 'https://stream-cdn.vov.vn/live/vov2-audio_only.m3u8' },
+            { name: 'VOV3', url: 'https://stream-cdn.vov.vn/live/vov3-audio_only.m3u8' },
+            { name: 'VOV Giao Thông HCM', url: 'https://stream.vovmedia.vn/vovgt-hcm' },
+            { name: 'VOV Giao Thông Hà Nội', url: 'https://stream-cdn.vov.vn/live/giao_thong_ha_noi-audio_only.m3u8' },
+            { name: 'VOV4 Miền Trung', url: 'https://stream.vovmedia.vn/vov4mt' },
+            { name: 'VOV4 Tây Nguyên', url: 'https://stream.vovmedia.vn/vov4tn' },
+            { name: 'VOV5  24/7', url: 'https://stream-cdn.vov.vn/live/vov24_7-audio_only.m3u8' },
+            { name: 'VOV Mekong', url: 'https://stream.vovmedia.vn/vovmekong' },
+            { name: 'Hà Nội FM90', url: 'https://cloudcdnfm90.tek4tv.vn/HANOI90/stream.m3u8' },
+            { name: 'Hà Tĩnh', url: 'https://wse.hatinhtv.net/radio/voht/playlist.m3u8' },
+            { name: 'Quảng Nam', url: 'https://qtv.vncdn.vn/qtvlive/qnr1.m3u8' },
+            { name: 'Bình Phước', url: 'https://live.baobinhphuoc.com.vn/bptvlive/radio.m3u8' },
+            { name: 'Thanh Hóa', url: 'https://s3-fpt-cdn.sohatv.vn/live/pull/Y5Kan2X7I7GHo4VN/thth-live/2DzDaj9NBVpQch8d/337a54767a7233703637564336316a6d0320b17bb2a0a51d3c2fb8b832f196b88c77a8c14ad1a62df6ce6018e55ac84c6a5fc5434dd07caa0f80bff256e78bfb43ea84716892bfd4e91cea41f430eaf1757bd67023db240c5c65ab166b14d9f6ef91a53d1411c09678e458b2d7446a4bac72748cbab6485bc90283d420dd40833e4909a309e04f76f292288773e87dc9032c5740ed8c3957456917c899ce67c9918cdbc6f8d0440b34c7569316595241/360.m3u8' },
+            { name: 'Truyện Đêm Khuya', url: 'https://strm.voh.com.vn/radio/channel5/chunklist_w1847215583.m3u8' },
+            {name: 'RFI Tiếng Việt', url: 'https://rfienvietnamien64k.ice.infomaniak.ch/rfienvietnamien-64.mp3' }
+
+        ];
+        
+        const buttonsContainer = document.getElementById('buttons');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const musicList = document.getElementById('musicList');
+        const musicMenu = document.getElementById('musicMenu');
+        
+        channels.forEach(channel => {
+            const button = document.createElement('button');
+            button.textContent = channel.name;
+            button.onclick = () => changeChannel(button, channel.url);
+            buttonsContainer.appendChild(button);
+        });
+        
+        function changeChannel(button, url) {
+            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            if (url.includes('.m3u8') && Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(audioPlayer);
+            } else {
+                audioPlayer.src = url;
+            }
+            audioPlayer.play();
+        }
+        
+        function updateClock() {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+
+            function loadMusic() {
+        const musicFiles = ["loduyen", "motvongvietnam", "aithatlongthuongem", "anhoiolai", "bacphan",
+                "best", "cohenvoithanhxuan", "doodle", "exhateme2", "kemduyen",
+                "mashup2015", "matketnoi", "neungayay", "ngaychuagiongbao", "nguoikhacloi",
+                "ongtroilamtoianhchua", "parkling", "phienlatinhlang", "quakhuanhkhongthequen", "thaytoiyeucoay",
+                "phohoale",
+                "cantinhnhuthe", "tuyam",
+                "aocutinhmoi", "bakeconnghe", "buongdoitaynhaura", "camtucau",
+                "chuabaogiomeke", "chuyendoita", "daohoa", "digiuatroirucro", "dungquentenanh",
+                "emkoladuynhat", "emlakedangthuong", "evediem", "fire", "goitenemtrongdem",
+                "ketheoduoianhsang", "lactroi", "mattroicuaem", "nangamxadan", "neutanguocloi",
+                "ngamhoaleroi", "ngayaybanvatoi", "ngaymaiemdimat", "noiaycontimve", "noivucnoitroi",
+                "phaohoa", "phiasaumotcogai", "sinhradalathudoilapnhau", "songchohetdoithanhxuan", "tambietnhe",
+                "thattinh", "trucxinh", "tuyetsac", "unity", "vicon",
+                "votinh", "wedonttalk","aicungcongayxua","votinh", "31073","05","22", "1820","yeuemnhungkhongvoitoi",
+                "群青-YOASOBI", "悪魔の子-Ai Higuchi", "夜に駆ける-YOASOBI", "優しい彗星-YOASOBI", "たぶん-YOASOBI",
+                "アイドル-YOASOBI", "WarhammerTitanTheme", "WarhammerTitan", "vokichcuaem", "Victory",
+                "TwoLives", "tuongtu", "Tuoitre", "Titanium", "thucgiac",
+                "TheRumbling", "thanhxuan", "Symphony", "StarSky", "SomeoneYouLoved",
+                "Seasons", "SaigonoKyojin", "RatherBe", "MoonlightSonata", "maylangthang",
+                "Matbiec", "LetMeLoveYou", "LeanOn", "last", "Lacrimosa",
+                "Itterasshai", "IntheNameofLove", "HappyForYou", "goldenhour", "GetYouTheMoon",
+                "Eyes NoseLips", "Diquahoacuc", "DimensionBreaker", "chuyendoita", "CanWeKissForever",
+                "CallofSilence", "2000", "AshesonTheFire", "AnotherLove", "airoicungboanhdi",
+                "Again", "520AM", "Barricades"
+        ];
+        musicList.innerHTML = ""; // Xóa danh sách cũ
+
+            musicFiles.forEach(file => {
+                let li = document.createElement('li');
+                li.textContent = file;
+                li.onclick = () => playMusic(`music/${file}.mp3`);
+                musicList.appendChild(li);
+            });
+        }
+
+        
+        function playMusic(file) {
+            audioPlayer.src = file;
+            audioPlayer.play();
+        }
+        
+        function toggleMusicMenu() {
+            musicMenu.style.display = musicMenu.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        function filterMusic() {
+            let filter = document.getElementById('searchBox').value.toLowerCase();
+            let items = musicList.getElementsByTagName('li');
+            for (let item of items) {
+                item.style.display = item.textContent.toLowerCase().includes(filter) ? '' : 'none';
+            }
+        }
+
+        loadMusic();
+        function createFireflies(num) {
+            for (let i = 0; i < num; i++) {
+                let firefly = document.createElement("div");
+                firefly.classList.add("firefly");
+                document.body.appendChild(firefly);
+
+                let x = Math.random() * window.innerWidth;
+                let y = Math.random() * window.innerHeight;
+                firefly.style.left = `${x}px`;
+                firefly.style.top = `${y}px`;
+
+                animateFirefly(firefly);
+            }
+        }
+
+        function animateFirefly(firefly) {
+            let xMove = (Math.random() - 1) * 200;
+            let yMove = (Math.random() - 1) * 200;
+            firefly.animate([
+                { transform: `translate(0, 0)` },
+                { transform: `translate(${xMove}px, ${yMove}px)` }
+            ], {
+                duration: Math.random() * 5000 + 5000,
+                iterations: Infinity,
+                direction: "alternate",
+                easing: "linear"
+            });
+        }
+
+        createFireflies(30);
+    </script>
+</body>
+</html>
