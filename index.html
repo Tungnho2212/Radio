@@ -9,7 +9,7 @@
         body { 
             text-align: center; 
             font-family: Arial, sans-serif; 
-            background: url('https://images6.alphacoders.com/122/thumbbig-1229258.webp') no-repeat center center fixed; 
+            background: url('https://images7.alphacoders.com/788/thumb-1920-788647.jpg') no-repeat center center fixed; 
             background-size: cover; /* Hoặc thử cover nếu muốn phủ hết */
             background-position: center;
             background-attachment: fixed;
@@ -214,7 +214,7 @@
         }
         setInterval(updateClock, 1000);
 
-            function loadMusic() {
+      
         const musicFiles = ["loduyen", "motvongvietnam", "aithatlongthuongem", "anhoiolai", "bacphan",
                 "best", "cohenvoithanhxuan", "doodle", "exhateme2", "kemduyen",
                 "mashup2015", "matketnoi", "neungayay", "ngaychuagiongbao", "nguoikhacloi",
@@ -238,19 +238,26 @@
                 "Itterasshai", "IntheNameofLove", "HappyForYou", "goldenhour", "GetYouTheMoon",
                 "Eyes NoseLips", "Diquahoacuc", "DimensionBreaker", "chuyendoita", "CanWeKissForever",
                 "CallofSilence", "2000", "AshesonTheFire", "AnotherLove", "airoicungboanhdi",
-                "Again", "520AM", "Barricades"
+                "Again", "520AM", "Barricades",
+                "BADBOY-BIGBANG", "BanhMiKo", "BetterOff", "Blue-BIGBANG", "BuonCuaAnh",
+                "Chieuhomay", "Closer-J.Fla", "Don'tLetMeDown", "Dotakhongdonang",
+                "Duongmotchieu", "Emcuaquakhu", "Emvoiquen", "HaruHaru-BIGBANG",
+                "Henemkiepsau", "Hoyeuaimatroi", "LaBanKhongTheYeu", "LacNhauCoPhaiMuonDoi",
+                "Laychongsomlamgi", "Letitgo", "Linhhonvathexac", "LOSER-BIGBANG",
+                "MONSTER-BIGBANG", "Mottinhyeu2thuthach", "MYHEAVEN-BIGBANG",
+                "Nguoidangthuonglaanh", "OnMyWay", "QuaKhuConLaiGi", "SauTatCa",
+                "ThangDien", "Thangtu", "theDOGS", "Thegioiaotinhyeuthat",
+                "Thuyenquyen", "TONIGHT-BIGBANG", "Vaycuoiremix", "Yeumotnguoicole"
         ];
-        musicList.innerHTML = ""; // Xóa danh sách cũ
-
-            musicFiles.forEach(file => {
-                let li = document.createElement('li');
-                li.textContent = file;
-                li.onclick = () => playMusic(`music/${file}.mp3`);
-                musicList.appendChild(li);
-            });
-        }
-
-        
+        function loadMusic() {
+    musicList.innerHTML = ""; // Xóa danh sách cũ
+    musicFiles.forEach(file => {
+        let li = document.createElement('li');
+        li.textContent = file;
+        li.onclick = () => playMusic(`music/${file}.mp3`);
+        musicList.appendChild(li);
+    });
+}  
         function playMusic(file) {
             audioPlayer.src = file;
             audioPlayer.play();
@@ -269,6 +276,45 @@
         }
 
         loadMusic();
+        
+        let isRandomPlaying = false;
+        function playNextRandomSong() {
+    if (!isRandomPlaying) return;
+
+    let randomIndex = Math.floor(Math.random() * musicFiles.length);
+    let randomSong = `music/${musicFiles[randomIndex]}.mp3`;
+
+    audioPlayer.src = randomSong;
+    audioPlayer.play();
+
+    // Khi bài nhạc kết thúc, gọi lại chính nó để phát bài mới
+    audioPlayer.onended = () => {
+        if (isRandomPlaying) {
+            playNextRandomSong();
+        }
+    };
+}
+function playRandomMusic() {
+    playNextRandomSong(); // Bấm nút là đổi bài mới ngay
+}
+
+function playNextRandomSong() {
+    let randomIndex = Math.floor(Math.random() * musicFiles.length);
+    let randomSong = `music/${musicFiles[randomIndex]}.mp3`;
+
+    audioPlayer.src = randomSong;
+    audioPlayer.play();
+
+    audioPlayer.onended = playNextRandomSong; // Khi nhạc kết thúc, gọi lại chính nó
+}
+
+
+
+        // Thêm nút Random Play vào giao diện
+        let randomButton = document.createElement("button");
+        randomButton.textContent = "Random Play";
+        randomButton.onclick = playRandomMusic;
+        buttonsContainer.appendChild(randomButton);
         function createFireflies(num) {
             for (let i = 0; i < num; i++) {
                 let firefly = document.createElement("div");
