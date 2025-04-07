@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio AND Chill 😘</title>
+    <link rel="icon" type="image/png" href="https://thuthuatnhanh.com/wp-content/uploads/2020/10/anh-logo-attack-on-titan-cua-doi-trinh-sat-don-gian-nhung-manh-me.jpg">
+    <title>Radio AND Chill 🤓</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { 
-            text-align: center; 
-            font-family: Arial, sans-serif; 
-            background: url('https://images7.alphacoders.com/788/thumb-1920-788647.jpg') no-repeat center center fixed; 
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: url('https://images7.alphacoders.com/788/thumb-1920-788647.jpg') no-repeat center center fixed;
             background-size: cover; /* Hoặc thử cover nếu muốn phủ hết */
             background-position: center;
             background-attachment: fixed;
@@ -21,22 +24,128 @@
             margin: 0;
             overflow: hidden;
         }
+        .neon-weather {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: #ff5e62; /* Màu neon đỏ */
+            text-shadow: 0 0 5px #ff5e62;
+            box-shadow: 0 0 10px #ff5e62, 0 0 20px #ff5e62;
+            font-family: 'Courier New', monospace;
+            max-width: 250px;
+            border: 1px solid #ff5e62;
+        }
+                @keyframes neonBlink {
+            0%, 100% { box-shadow: 0 0 10px #ff5e62, 0 0 20px #ff5e62; }
+            50% { box-shadow: 0 0 15px #ff5e62, 0 0 30px #ff5e62, 0 0 45px #ff5e62; }
+        }
 
+        .neon-weather {
+            animation: neonBlink 3s infinite;
+        }
+        .neon-weather p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .neon-weather p:first-child {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        @keyframes moveRandom {
+            0% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(50px, -80px);
+            }
+            50% {
+                transform: translate(-60px, 90px);
+            }
+            75% {
+                transform: translate(80px, -50px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
         h2 {
             color: white;
             background: rgba(0, 0, 0, 0.6);
             padding: 10px 20px;
             border-radius: 10px;
         }
-        #clock {
+                #clock {
             position: absolute;
             top: 10px;
             left: 10px;
-            color: white;
             font-size: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px 10px;
-            border-radius: 5px;
+            font-weight: bold;
+            color: #00ffff; /* Màu xanh dương neon */
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        /* Thêm vào phần style */
+        button, .music-menu-button {
+            background: transparent;
+            color: #40c756;
+            border: 2px solid currentColor;
+            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+            text-shadow: 0 0 5px currentColor;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+            z-index: 1;
+        }
+        .neon-select {
+        padding: 8px 12px;
+        border: 1px solid #00ffff;
+        border-radius: 5px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 0 10px #00ffff;
+        }
+
+        .neon-select option {
+        background: #222;
+        }
+
+        .neon-select:focus {
+        outline: none;
+        box-shadow: 0 0 15px #00ffff;
+        }
+        button::before, .music-menu-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: currentColor;
+            opacity: 0.1;
+            z-index: -1;
+            transition: 0.3s;
+        }
+
+        button:hover, .music-menu-button:hover {
+            box-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+            transform: translateY(-2px);
+        }
+
+        button:hover::before, .music-menu-button:hover::before {
+            opacity: 0.2;
+        }
+
+        .active {
+            box-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 0 45px currentColor !important;
+            font-weight: bold;
         }
         #audioPlayer {
             width: 80%;
@@ -50,15 +159,44 @@
             gap: 10px;
             max-width: 800px;
         }
-        button { 
-            padding: 12px 20px; 
-            font-size: 16px; 
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.8);
-            transition: 0.3s;
+/* Xóa hoặc sửa phần button mặc định */
+        #buttons button {
+        padding: 12px 20px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 5px;
+        border: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+
+        /* Thêm nền trắng với độ trong suốt */
+        background-color: rgba(255, 255, 255, 0.7); /* 70% opacity */
+
+        /* Đảm bảo chữ đậm và dễ đọc */
+        color: #000; /* Chữ màu đen */
+        text-shadow: none; /* Bỏ text-shadow nếu có */
         }
+        /* Đảm bảo class neon được ưu tiên */
+        button.neon-red, button.neon-blue, button.neon-green,
+        button.neon-purple, button.neon-pink, button.neon-yellow,
+        button.neon-orange {
+            color: var(--neon-color) !important;
+            text-shadow: 0 0 5px currentColor !important;
+            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor !important;
+        }
+
+        /* Định nghĩa màu neon */
+        .neon-red { --neon-color: #ff5e62; }
+        .neon-blue { --neon-color: #00ffff; }
+        .neon-green { --neon-color: #00ff7f; }
+        .neon-purple { --neon-color: #9370db; }
+        .neon-pink { --neon-color: #ff1493; }
+        .neon-yellow { --neon-color: #ffff00; }
+        .neon-orange { --neon-color: #ff8c00; }
         button:hover {
             background: rgba(255, 255, 255, 1);
         }
@@ -74,7 +212,7 @@
         }
         .music-menu-button {
             background: linear-gradient(45deg, #ff7e5f, #feb47b);
-            color: white;
+            color: rgb(241, 6, 6);
             padding: 12px 25px;
             border-radius: 15px;
             cursor: pointer;
@@ -93,8 +231,8 @@
             width: 275px;
             max-height: 250px;
             overflow-y: auto;
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
+            background: rgba(0, 74, 83, 0.85);
+            color: rgb(255, 255, 255);
             padding: 10px;
             border-radius: 10px;
             margin-top: 5px;
@@ -131,30 +269,324 @@
             pointer-events: none;
             animation: moveRandom 10s infinite linear;
         }
-
-        @keyframes moveRandom {
-            0% {
-                transform: translate(0, 0);
-            }
-            25% {
-                transform: translate(50px, -80px);
-            }
-            50% {
-                transform: translate(-60px, 90px);
-            }
-            75% {
-                transform: translate(80px, -50px);
-            }
-            100% {
-                transform: translate(0, 0);
-            }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px currentColor, 0 0 30px currentColor !important;
         }
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ffff;
+            color: black;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+        }
+
+        /* ============== CHAT CONTAINER ============== */
+        .chat-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+            border: 2px solid #00ffff;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            max-height: 500px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        #onlineCountContainer {
+            background-color: #f8f9fa;
+            padding: 8px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+            font-size: 0.9em;
+            color: #555;
+        }
+        /* ============== CHAT HEADER ============== */
+        .chat-header {
+            background: linear-gradient(135deg, rgba(0, 100, 100, 0.9), rgba(0, 150, 150, 0.8));
+            color: #00ffff;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #closeChat {
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #closeChat:hover {
+            transform: scale(1.2);
+            color: #ff5e62;
+        }
+/* ============== CHAT TOGGLE BUTTON ============== */
+.chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #00ffff;
+    color: black;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.chat-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
+}
+
+/* ============== CHAT CONTAINER ============== */
+.chat-container {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+    border: 2px solid #00ffff;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    max-height: 500px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+/* ============== CHAT HEADER ============== */
+.chat-header {
+    background: linear-gradient(135deg, rgba(0, 100, 100, 0.9), rgba(0, 150, 150, 0.8));
+    color: #00ffff;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#closeChat {
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#closeChat:hover {
+    transform: scale(1.2);
+    color: #ff5e62;
+}
+
+/* ============== CHAT MESSAGES ============== */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    max-height: 350px;
+    scrollbar-width: thin;
+    scrollbar-color: #00ffff rgba(0, 50, 50, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.chat-messages .sent {
+    align-self: flex-end;
+}
+.message-container {
+    width: 70%;
+    display: flex;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    align-items: first baseline;
+}
+
+.message {
+    padding: 12px 15px;
+    border-radius: 10px;
+    background: rgb(170 179 46 / 26%);
+    color: white;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease;
+    border-radius: 3px solid #174605;
+    max-width: 70%;
+    display: inline-block; /* Add this line */
+    vertical-align: top; /* Recommended for inline-block elements */
+}
+
+.sent {
+    background-color: #276110;
+    color: white;
+    align-self: flex-end; /* Align your messages to the right */
+    display: inline-block; /* Add this line to make background fit content */
+    vertical-align: top; /* Recommended for inline-block elements */
+}
+
+.received {
+    align-self: flex-start;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message .sender {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    padding-right: 10px;
+}
+
+.message .time {
+    font-size: 12px;
+    color: #aaa;
+    display: block;
+    margin-top: 5px;
+}
+
+.sent .time {
+    text-align: right;
+}
+
+/* ============== CHAT INPUT ============== */
+.chat-input {
+    display: flex; /* Make sure this is present for proper alignment */
+    padding: 15px;
+    border-top: 2px solid #00ffff;
+    background: rgba(0, 50, 50, 0.5);
+}
+
+#messageInput {
+    flex-grow: 1; /* Allow the input to take up available space */
+    padding: 12px 15px;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 14px;
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    transition: all 0.3s;
+    margin-right: 10px; /* Add margin to the right of the input */
+}
+
+#messageInput:focus {
+    box-shadow: 0 0 15px #00ffff;
+    border-color: #00ffcc;
+}
+
+#sendMessage {
+    padding: 12px 20px;
+    background: #00ffff;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 0 10px #00ffff;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    /* margin-left: 10px; Remove inline style */
+}
+
+#sendMessage:hover {
+    background: #00e6e6;
+    box-shadow: 0 0 15px #00ffff;
+    transform: translateY(-2px);
+}
+
+/* ============== CUSTOM SCROLLBAR ============== */
+.chat-messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(0, 50, 50, 0.3);
+    border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #00ffff;
+    border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #00e6e6;
+}
+
+/* ============== USER COUNT BADGE ============== */
+#onlineCountContainer {
+    background-color: #f8f9fa;
+    padding: 8px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+    font-size: 0.9em;
+    color: #555;
+  }
     </style>
 </head>
 <body>
     <div id="clock"></div>
-    <h2>RADIO AND CHILL 🤓☝️</h2>
+    <h2>RADIO AND CHILL</h2>
     <audio id="audioPlayer" controls></audio>
+    <div id="weather" class="neon-weather">
+        <select id="citySelect" class="neon-select">
+            <option value="Hanoi" selected>Hà Nội</option>
+            <option value="Ho Chi Minh City">TP.HCM</option>
+            <option value="Danang">Đà Nẵng</option>
+            <option value="Hue">Huế</option>
+            <option value="Nha Trang">Nha Trang</option>
+            <option value="HaiPhong">Hải Phòng</option>
+            <option value="Can Tho">Cần Thơ</option>
+            <option value="Da Lat">Đà Lạt</option>
+        </select>
+        <div id="weatherInfo"></div>
+    </div>
     <div class="button-container" id="buttons"></div>
     <div class="music-menu-container">
         <div class="music-menu-button" onclick="toggleMusicMenu()">MUSIC </div>
@@ -163,7 +595,212 @@
             <ul id="musicList"></ul>
         </div>
     </div>
+    <div class="chat-toggle" id="chatToggle">💬</div>
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <span>Chat Trực Tuyến</span>
+            <span id="closeChat">×</span>
+            <div id="onlineCountContainer">
+                <span id="onlineCount">Online: 0</span>
+              </div>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Nhập tin nhắn..." maxlength="200">
+            <button id="sendMessage">Gửi</button>
+        </div>
+    </div>
     <script>
+// ==================== CẤU HÌNH FIREBASE ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyCaxvZR5IHDAr_kZ6-UvzyhCg_8DAXbg5U",
+  authDomain: "chatrt-30cdd.firebaseapp.com",
+  databaseURL: "https://chatrt-30cdd-default-rtdb.firebaseio.com",
+  projectId: "chatrt-30cdd",
+  storageBucket: "chatrt-30cdd.firebasestorage.app",
+  messagingSenderId: "962241796739",
+  appId: "1:962241796739:web:dae759648ffda234af19b6",
+  measurementId: "G-H7MDPK58PK"
+};
+
+// Khởi tạo Firebase
+ firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+ // ==================== PHẦN CHAT ====================
+let currentUser = {
+        id: '',
+        name: '',
+        color: ''
+    };
+
+    const luffyNames = ["Luffy", "Zoro", "Nami", "Usopp", "Sanji", "Chopper", "Robin", "Franky", "Brook", "Jinbe"];
+
+    function initializeChat() {
+        // Tạo user ngẫu nhiên với tên Luffy
+        currentUser.id = 'user_' + Math.random().toString(36).substr(2, 9);
+        const randomLuffyName = luffyNames[Math.floor(Math.random() * luffyNames.length)];
+        const randomNumber = Math.floor(Math.random() * 100); // Thêm số ngẫu nhiên để tránh trùng tên
+        currentUser.name = `${randomLuffyName}★${randomNumber}`;
+        currentUser.color = getRandomColor();
+
+        // Tham chiếu database
+        const messagesRef = database.ref('messages');
+        const usersRef = database.ref('users/' + currentUser.id);
+        //
+            // Thêm phần đếm số người online
+    const onlineUsersRef = database.ref('users');
+
+    onlineUsersRef.on('value', (snapshot) => {
+        const users = snapshot.val();
+        let onlineCount = 0;
+
+        if (users) {
+            const currentTime = Date.now();
+            // Xem user là online nếu hoạt động trong vòng 5 phút trở lại
+            Object.values(users).forEach(user => {
+                if (currentTime - user.lastActive < 300000) { // 5 phút
+                    onlineCount++;
+                }
+            });
+        }
+
+        document.getElementById('onlineCount').textContent = `Online: ${onlineCount}`;
+    });
+        // Lắng nghe tin nhắn mới
+        messagesRef.limitToLast(20).on('child_added', (snapshot) => {
+            const message = snapshot.val();
+            displayMessage(message);
+        });
+
+        // Đánh dấu user online
+        usersRef.set({
+            name: currentUser.name,
+            color: currentUser.color,
+            lastActive: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        // Cập nhật trạng thái hoạt động
+        setInterval(() => {
+            usersRef.update({
+                lastActive: firebase.database.ServerValue.TIMESTAMP
+            });
+        }, 30000);
+
+        // Xóa user khi đóng tab
+        window.addEventListener('beforeunload', () => {
+            usersRef.remove();
+        });
+
+        // Sự kiện gửi tin nhắn
+        document.getElementById('sendMessage').addEventListener('click', sendMessage);
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Toggle chat
+        document.getElementById('chatToggle').addEventListener('click', toggleChat);
+        document.getElementById('closeChat').addEventListener('click', toggleChat);
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+
+        if (message) {
+            database.ref('messages').push({
+                userId: currentUser.id,
+                userName: currentUser.name,
+                userColor: currentUser.color,
+                text: message,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            input.value = '';
+        }
+    }
+
+    function displayMessage(message) {
+        const messagesDiv = document.getElementById('chatMessages');
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'message-container';
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+
+        const time = new Date(message.timestamp).toLocaleTimeString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        messageDiv.innerHTML = `
+            <span class="sender" style="color: ${message.userColor}">${message.userName}</span>
+            <div>${message.text}</div>
+            <span class="time">${time}</span>
+        `;
+
+        if (message.userId === currentUser.id) {
+            messageDiv.classList.add('sent');
+            messageContainer.classList.add('sent');
+            messageContainer.appendChild(messageDiv);
+        } else {
+            messageDiv.classList.add('received');
+            messageContainer.classList.add('received');
+            messageContainer.appendChild(messageDiv);
+        }
+
+        messagesDiv.appendChild(messageContainer);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    function cleanupOldMessages() {
+        const messagesRef = database.ref('messages');
+        const cutoffTime = Date.now() - 24 * 60 * 60 * 1000; // 24 giờ trước
+
+        messagesRef.orderByChild('timestamp').endAt(cutoffTime).once('value', (snapshot) => {
+            const updates = {};
+            snapshot.forEach(child => {
+                updates[child.key] = null; // Đánh dấu để xóa
+            });
+
+            if (Object.keys(updates).length > 0) {
+                messagesRef.update(updates);
+            }
+        });
+    }
+
+    // Chạy dọn dẹp mỗi giờ
+    setInterval(cleanupOldMessages, 60 * 60 * 1000);
+    cleanupOldMessages(); // Chạy ngay lần đầu
+    function toggleChat() {
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.style.display = chatContainer.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function getRandomColor() {
+        const colors = ['#00ffff', '#ff5e62', '#00ff7f', '#9370db', '#ff1493', '#ffff00', '#ff8c00'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // Initialize chat when the page loads
+    window.onload = initializeChat;
+        // Thêm vào script
+        const neonColors = ['neon-red', 'neon-blue', 'neon-green', 'neon-purple', 'neon-pink', 'neon-yellow', 'neon-orange'];
+
+            function applyRandomNeonColors() {
+        const buttons = document.querySelectorAll('#buttons button');
+        buttons.forEach(button => {
+            // Xóa tất cả class neon cũ
+            button.classList.remove(...neonColors);
+
+            // Thêm class neon mới ngẫu nhiên
+            const randomColor = neonColors[Math.floor(Math.random() * neonColors.length)];
+            button.classList.add(randomColor);
+        });
+    }
+
+    // Gọi hàm khi trang tải và mỗi 5 giây
+    window.onload = applyRandomNeonColors;
+    setInterval(applyRandomNeonColors, 5000);
+
         const channels = [
             { name: 'VOV1', url: 'https://stream-cdn.vov.vn/live/vov1-audio_only.m3u8' },
             { name: 'VOV2', url: 'https://stream-cdn.vov.vn/live/vov2-audio_only.m3u8' },
@@ -183,19 +820,19 @@
             {name: 'RFI Tiếng Việt', url: 'https://rfienvietnamien64k.ice.infomaniak.ch/rfienvietnamien-64.mp3' }
 
         ];
-        
+
         const buttonsContainer = document.getElementById('buttons');
         const audioPlayer = document.getElementById('audioPlayer');
         const musicList = document.getElementById('musicList');
         const musicMenu = document.getElementById('musicMenu');
-        
+
         channels.forEach(channel => {
             const button = document.createElement('button');
             button.textContent = channel.name;
             button.onclick = () => changeChannel(button, channel.url);
             buttonsContainer.appendChild(button);
         });
-        
+
         function changeChannel(button, url) {
             document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
@@ -208,13 +845,15 @@
             }
             audioPlayer.play();
         }
-        
-        function updateClock() {
-            document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+
+                function updateClock() {
+            let now = new Date();
+            let timeString = now.toLocaleTimeString();
+            let dateString = now.toLocaleDateString('vi-VN'); // Hiển thị ngày/tháng/năm theo chuẩn VN
+            document.getElementById('clock').innerHTML = `${timeString} <br> ${dateString}`;
         }
         setInterval(updateClock, 1000);
-
-      
+        updateClock(); // Gọi ngay khi tải trang
         const musicFiles = ["loduyen", "motvongvietnam", "aithatlongthuongem", "anhoiolai", "bacphan",
                 "best", "cohenvoithanhxuan", "doodle", "exhateme2", "kemduyen",
                 "mashup2015", "matketnoi", "neungayay", "ngaychuagiongbao", "nguoikhacloi",
@@ -247,8 +886,23 @@
                 "MONSTER-BIGBANG", "Mottinhyeu2thuthach", "MYHEAVEN-BIGBANG",
                 "Nguoidangthuonglaanh", "OnMyWay", "QuaKhuConLaiGi", "SauTatCa",
                 "ThangDien", "Thangtu", "theDOGS", "Thegioiaotinhyeuthat",
-                "Thuyenquyen", "TONIGHT-BIGBANG", "Vaycuoiremix", "Yeumotnguoicole"
-        ];
+                "Thuyenquyen", "TONIGHT-BIGBANG", "Vaycuoiremix", "Yeumotnguoicole","Khovenucuoi",
+                "amthambenem", "TotheInfinityCastle","10ngannam","ThuCuoi",
+                "1buocyeuvandamdau", "24h", "Anhkhachayemkhac",
+                "Anhsedenbenem", "Anhthoinhannhuong", "Beodatmaytroi", "BuonKhongEm", "Chicoem",
+                "CoAnhODayRoi", "Codonkhongmuonvenha", "Colaremix", "Conduongtoi",
+                "Connome", "Cothamkhongveremix", "CryingOverYou", "Cunganh",
+                "Cuocsongemonkhong", "Daudetruongthanh", "Daumua", "Divenha",
+                "Doimat", "Don'tcoi", "Dunglaiodaythoi", "Duyenminhlo",
+                "Emlaconthuyencodon", "Emoilenpho", "Hongkong1",
+                "Id072019", "Kosaomaemdayroi", "Lamvoanhnhe", "Langyen",
+                "LayAnhDi", "Moho", "Ngaymainguoitalaychong", "Nguoilaoi",
+                "OnlyU", "Phiasauem", "Quacaugiobay", "Sainguoisaithoidiem","Songgio",
+                "Taconyeunhau", "Tancungnoinho","Thamphuphuban","Thithoi",
+                "Tinhyeumaunang", "Trongtrinhocuaanh", "Votuyetvoinhat", "Yeu5remix","Yeuduocko",
+                "YeuEmRatNhieu", "Yeulathathu"
+            ]
+
         function loadMusic() {
     musicList.innerHTML = ""; // Xóa danh sách cũ
     musicFiles.forEach(file => {
@@ -257,16 +911,16 @@
         li.onclick = () => playMusic(`music/${file}.mp3`);
         musicList.appendChild(li);
     });
-}  
+}
         function playMusic(file) {
             audioPlayer.src = file;
             audioPlayer.play();
         }
-        
+
         function toggleMusicMenu() {
             musicMenu.style.display = musicMenu.style.display === 'block' ? 'none' : 'block';
         }
-        
+
         function filterMusic() {
             let filter = document.getElementById('searchBox').value.toLowerCase();
             let items = musicList.getElementsByTagName('li');
@@ -276,7 +930,7 @@
         }
 
         loadMusic();
-        
+
         let isRandomPlaying = false;
         function playNextRandomSong() {
     if (!isRandomPlaying) return;
@@ -307,8 +961,6 @@ function playNextRandomSong() {
 
     audioPlayer.onended = playNextRandomSong; // Khi nhạc kết thúc, gọi lại chính nó
 }
-
-
 
         // Thêm nút Random Play vào giao diện
         let randomButton = document.createElement("button");
@@ -345,6 +997,50 @@ function playNextRandomSong() {
         }
 
         createFireflies(30);
+        // Hàm getWeather giữ nguyên
+        function getWeather(city = 'Hanoi') {
+            const apiKey = '7ef34e9970e0f6b127cc45c61f9221b8'; // Thay bằng API key thật
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=vi`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const weatherDescription = data.weather[0].description;
+                    const temperature = Math.round(data.main.temp);
+                    const humidity = data.main.humidity;
+                    const iconCode = data.weather[0].icon;
+                    const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+                    document.getElementById('weatherInfo').innerHTML = `
+                        <p>${city} <img src="${iconUrl}" alt="${weatherDescription}" style="vertical-align: middle;"></p>
+                        <p>${weatherDescription}</p>
+                        <p>🌡️ ${temperature}°C</p>
+                        <p>💧 ${humidity}%</p>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    document.getElementById('weatherInfo').innerHTML = '<p>Không thể lấy thông tin thời tiết</p>';
+                });
+        }
+
+        // Xử lý sự kiện khi trang tải
+        window.onload = function() {
+            // Gọi lần đầu với thành phố mặc định
+            initializeChat();
+            getWeather('Hanoi');
+
+            // Xử lý thay đổi select box
+            document.getElementById('citySelect').addEventListener('change', function() {
+                getWeather(this.value);
+            });
+
+            // Thiết lập interval cập nhật
+            setInterval(() => {
+                const selectedCity = document.getElementById('citySelect').value;
+                getWeather(selectedCity);
+            }, 1800000); // 30 phút
+        };
     </script>
 </body>
 </html>
