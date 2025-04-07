@@ -1041,6 +1041,63 @@ function playNextRandomSong() {
                 getWeather(selectedCity);
             }, 1800000); // 30 phút
         };
+// ===== CHẶN F12, CHUỘT PHẢI, INSPECT ELEMENT =====
+document.addEventListener('keydown', function(e) {
+    // Chặn F12
+    if (e.key === 'F12' || e.keyCode === 123) {
+        e.preventDefault();
+        alert("DevTools đã bị chặn trên trang này!");
+        return false;
+    }
+    // Chặn Ctrl+Shift+I
+    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+        e.preventDefault();
+        alert("DevTools đã bị chặn!");
+        return false;
+    }
+    // Chặn Ctrl+Shift+J
+    if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+        e.preventDefault();
+        alert("Console đã bị chặn!");
+        return false;
+    }
+    // Chặn Ctrl+U
+    if (e.ctrlKey && e.key === 'u') {
+        e.preventDefault();
+        alert("Xem mã nguồn đã bị chặn!");
+        return false;
+    }
+    // Chặn Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        alert("Inspect Element đã bị chặn!");
+        return false;
+    }
+});
+
+// Chặn chuột phải
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    alert("Chuột phải đã bị vô hiệu hóa!");
+    return false;
+});
+
+// Chặn mở DevTools bằng cách kiểm tra kích thước cửa sổ
+let lastWidth = window.innerWidth;
+window.addEventListener('resize', function() {
+    if (window.innerWidth < lastWidth || window.outerWidth < lastWidth) {
+        window.location.reload();
+    }
+    lastWidth = window.innerWidth;
+});
+
+// Chặn debugger nếu mở DevTools
+setInterval(function() {
+    if (typeof window.console !== 'undefined') {
+        console.log("DevTools đã bị chặn!");
+        debugger;
+    }
+}, 1000);
     </script>
 </body>
 </html>
