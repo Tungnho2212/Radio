@@ -801,24 +801,31 @@ let currentUser = {
     window.onload = applyRandomNeonColors;
     setInterval(applyRandomNeonColors, 5000);
 
-        const channels = [
-            { name: 'VOV1', url: 'https://stream-cdn.vov.vn/live/vov1-audio_only.m3u8' },
-            { name: 'VOV2', url: 'https://stream-cdn.vov.vn/live/vov2-audio_only.m3u8' },
-            { name: 'VOV3', url: 'https://stream-cdn.vov.vn/live/vov3-audio_only.m3u8' },
-            { name: 'VOV Giao Thông HCM', url: 'https://stream.vovmedia.vn/vovgt-hcm' },
-            { name: 'VOV Giao Thông Hà Nội', url: 'https://stream-cdn.vov.vn/live/giao_thong_ha_noi-audio_only.m3u8' },
-            { name: 'VOV4 Miền Trung', url: 'https://stream.vovmedia.vn/vov4mt' },
-            { name: 'VOV4 Tây Nguyên', url: 'https://stream.vovmedia.vn/vov4tn' },
-            { name: 'VOV5  24/7', url: 'https://stream-cdn.vov.vn/live/vov24_7-audio_only.m3u8' },
-            { name: 'VOV Mekong', url: 'https://stream.vovmedia.vn/vovmekong' },
+    const channels = [
+        {name: 'VPOP', url: 'https://vnno-pt-7-tf-multi-playlist-zmp3.zmdcdn.me/JB2zPitWC-s/zhls/playback-realtime/audio/6ddadf76e3330a6d5322/audio.m3u8' },
+        {name: 'Chạm Radio', url: 'https://vnno-pt-9-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8' },
+        {name: 'Bolero Radio', url: 'https://vnno-pt-9-tf-multi-playlist-zmp3.zmdcdn.me/BJ7DyJjfG_E/zhls/playback-realtime/audio/5bace800d4453d1b6454/audio.m3u8' },
+        {name: 'USUK', url: 'https://vnno-zn-16-tf-multi-playlist-zmp3.zmdcdn.me/5k37-bBNjIU/zhls/playback-realtime/audio/f49e38320477ed29b466/audio.m3u8' },
+        {name: 'KPOP', url: 'https://vnno-ne-1-tf-multi-playlist-zmp3.zmdcdn.me/XoQlAlw4O08/zhls/playback-realtime/audio/6600baac86e96fb736f8/audio.m3u8' },
+        {name: 'Acoustic', url: 'https://vnno-pt-6-tf-multi-playlist-zmp3.zmdcdn.me/4TX5Vj5v__E/zhls/playback-realtime/audio/9b7b55d7699280ccd983/audio.m3u8' },
+        {name: 'Rạp Việt', url: 'https://vnno-ne-6-tf-multi-playlist-zmp3.zmdcdn.me/7k45_gFb6I8/zhls/playback-realtime/audio/cef1015d3d18d4468d09/audio.m3u8' },
+        {name: 'EDM', url: 'https://vnno-ne-4-tf-multi-playlist-zmp3.zmdcdn.me/AkjPOEj66pI/zhls/playback-realtime/audio/7386bb2a876f6e31377e/audio.m3u8' },
+        { name: 'Nhạc Trung', url: 'https://vnno-zn-8-tf-multi-playlist-zmp3.zmdcdn.me/nDOW7B2Y4NI/zhls/playback-realtime/audio/97b35e1f625a8b04d24b/audio.m3u8' },
+        { name: 'VOV1', url: 'https://stream-cdn.vov.vn/live/vov1-audio_only.m3u8' },
+        { name: 'VOV2', url: 'https://stream-cdn.vov.vn/live/vov2-audio_only.m3u8' },
+        { name: 'VOV3', url: 'https://stream-cdn.vov.vn/live/vov3-audio_only.m3u8' },
+        { name: 'VOV Giao Thông HCM', url: 'https://stream.vovmedia.vn/vovgt-hcm' },
+        { name: 'VOV Giao Thông Hà Nội', url: 'https://stream-cdn.vov.vn/live/giao_thong_ha_noi-audio_only.m3u8' },
+        { name: 'VOV4 Miền Trung', url: 'https://stream.vovmedia.vn/vov4mt' },
+        { name: 'VOV4 Tây Nguyên', url: 'https://stream.vovmedia.vn/vov4tn' },
+        { name: 'VOV5  24/7', url: 'https://stream-cdn.vov.vn/live/vov24_7-audio_only.m3u8' },
+        { name: 'VOV Mekong', url: 'https://stream.vovmedia.vn/vovmekong' },
             { name: 'Hà Nội FM90', url: 'https://cloudcdnfm90.tek4tv.vn/HANOI90/stream.m3u8' },
             { name: 'Hà Tĩnh', url: 'https://wse.hatinhtv.net/radio/voht/playlist.m3u8' },
             { name: 'Quảng Nam', url: 'https://qtv.vncdn.vn/qtvlive/qnr1.m3u8' },
             { name: 'Bình Phước', url: 'https://live.baobinhphuoc.com.vn/bptvlive/radio.m3u8' },
             { name: 'Thanh Hóa', url: 'https://s3-fpt-cdn.sohatv.vn/live/pull/Y5Kan2X7I7GHo4VN/thth-live/2DzDaj9NBVpQch8d/337a54767a7233703637564336316a6d0320b17bb2a0a51d3c2fb8b832f196b88c77a8c14ad1a62df6ce6018e55ac84c6a5fc5434dd07caa0f80bff256e78bfb43ea84716892bfd4e91cea41f430eaf1757bd67023db240c5c65ab166b14d9f6ef91a53d1411c09678e458b2d7446a4bac72748cbab6485bc90283d420dd40833e4909a309e04f76f292288773e87dc9032c5740ed8c3957456917c899ce67c9918cdbc6f8d0440b34c7569316595241/360.m3u8' },
-            { name: 'Truyện Đêm Khuya', url: 'https://strm.voh.com.vn/radio/channel5/chunklist_w1847215583.m3u8' },
             {name: 'RFI Tiếng Việt', url: 'https://rfienvietnamien64k.ice.infomaniak.ch/rfienvietnamien-64.mp3' }
-
         ];
 
         const buttonsContainer = document.getElementById('buttons');
